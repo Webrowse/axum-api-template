@@ -67,4 +67,59 @@ sqlx migrate run
 - App starts and connects to the DB  
 - `/health` route now checks database connectivity  
 
-**Next:** Implement `/auth/register` route with Argon2 password hashing.
+
+## Day 3 — User Registration Implemented
+
+Today’s goal: implement a real registration flow using SQLX, Argon2 password hashing, and proper request/response structs.
+
+### Added Features
+
+1. **POST /auth/register** endpoint
+2. **Argon2 password hashing**
+3. **UUID user IDs**
+4. **Insert user into PostgreSQL**
+5. **Structured request + response payloads**
+
+### What Happens When You Register
+
+* Client submits email and raw password
+* Password is hashed using Argon2 + random salt
+* A new UUID is generated
+* User is inserted into the `users` table
+* API returns the new user’s ID and email
+
+### Example Request
+
+```bash
+curl -X POST http://127.0.0.1:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"secret123"}'
+```
+
+### Example Response
+
+```json
+{
+    "id":"f8f69103-d517-4f66-b144-1ee1276da6eb",
+    "email":"test@example.com"
+}
+```
+
+### Files Added Today
+
+* `src/routes/auth.rs`
+* `argon2` and `rand` dependencies in Cargo.toml
+* new `POST /auth/register` route in `routes/mod.rs`
+
+### DB Schema Used
+
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+

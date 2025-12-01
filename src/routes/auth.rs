@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use crate::state::AppState;
 use uuid::Uuid;
 use argon2::{Argon2, PasswordHasher};
-use rand_core::OsRng;
+use rand::rngs::OsRng;
+// use rand_core::OsRng;
 use argon2::password_hash::{SaltString, PasswordHash};
 
 #[derive(Deserialize)]
@@ -18,7 +19,7 @@ pub struct RegisterResponse {
     pub email: String,
 }
 
-pub sync fn register(
+pub async fn register(
     State(state): State<AppState>,
     Json(payload): Json<RegistrationRequest>
 ) -> Json<RegisterResponse> {
