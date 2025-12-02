@@ -15,5 +15,5 @@ chrono = { version = "0.4", features = ["serde"] }
 argon2 = "0.5.3"
 # rand_core = "0.9.3"
 rand = "0.8.5"
-jsonwebtoken = "10.2.0"
+jsonwebtoken = "9"
 

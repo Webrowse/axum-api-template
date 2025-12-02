@@ -2,7 +2,6 @@ mod config;
 mod routes;
 mod state;
 
-use axum::Router;
 use sqlx::PgPool;
 
 #[tokio::main]

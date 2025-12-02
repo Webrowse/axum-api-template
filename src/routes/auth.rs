@@ -1,12 +1,14 @@
-use axum::{ extract::{ Json, State }, http::{StatusCode, status}, response::IntoResponse, };
+use axum::{ extract::{ Json, State }, http::StatusCode, response::IntoResponse, };
 use serde::{Deserialize, Serialize};
 use crate::state::AppState;
 use uuid::Uuid;
 use argon2::{Argon2, PasswordHasher, PasswordVerifier };
 use rand::rngs::OsRng;
 use argon2::password_hash::{SaltString, PasswordHash};
-use jsonwebtoken::{EncodingKey, Header, DecodingKey, Validation, encode, decode };
+use jsonwebtoken::{EncodingKey, Header, encode };
 use std::env;
+use chrono::Utc;
+use chrono::Duration; 
 
 #[derive(Deserialize)]
 pub struct RegistrationRequest {
@@ -24,6 +26,11 @@ pub struct RegisterResponse {
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
+}
+
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -82,9 +89,9 @@ pub async fn login(
 
     let row = match row {
         Ok(Some(r)) => r,
-        Ok(Some(None)) => return (StatusCode::UNAUTHORIZED),
+        Ok(None) => return (StatusCode::UNAUTHORIZED, "Invalid Credential").into_response(),
         Err(e) => {
-            eprintln!("DB Error", e);
+            eprintln!("DB Error: {}", e);
             return (StatusCode::INTERNAL_SERVER_ERROR, "db error").into_response();
         }
     };
@@ -107,7 +114,7 @@ pub async fn login(
         iat: now.timestamp() as usize,
     };
 
-    let token = encode(&Header::default(), Claims, &EncodingKey::from_secret(secret.as_bytes()))
+    let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()))
         .map_err(|e| {
             eprintln!("jwt encode error: {}",e);
             (StatusCode::INTERNAL_SERVER_ERROR, "token error")
