@@ -188,4 +188,25 @@ Authorization: Bearer <token>
 ## Status
 Authentication layer is now complete and stable. System supports secure login, token issuance, and guarded routes.
 
+## Day 5: Task Management CRUD
+
+**Goal:** Implement complete task management system with database persistence.
+
+### What I Built
+
+- Created `tasks` table with foreign key to users (CASCADE delete)
+- Organized task code into modular structure: dto, model, queries, routes
+- Implemented full CRUD operations:
+  - `POST /api/task` - create task
+  - `GET /api/task` - list all user tasks
+  - `PUT /api/task/{id}` - update task (partial updates with COALESCE)
+  - `DELETE /api/task/{id}` - delete task
+- All routes protected by JWT middleware
+- User-scoped operations (users only access their own tasks)
+
+### Files Added
+- `migrations/20251130132950_create_tasks.sql`
+- `src/routes/tasks/` module (dto, model, queries, routes)
+
+---
 
